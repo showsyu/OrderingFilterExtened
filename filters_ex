@@ -1,0 +1,41 @@
+from django.forms.utils import pretty_name
+from django_filters import OrderingFilter
+from django.utils.translation import gettext_lazy as _
+
+
+class OrderingFilterExtened(OrderingFilter):
+    def __init__(self, fields_many, *args, **kwargs):
+        """
+        :param fields_many tupe.
+            Usage fields_many=(('full_name', ('first_name', 'last_name'), ('first_name', '-last_name')),)
+            Or fields_many=(('full_name', ('first_name', 'last_name')),) - creates all model names with prefix '-'
+        """
+
+        super().__init__(*args, **kwargs)
+
+        self.__param_mapping = {}
+        for param_name, model_names_asc, *model_names_desc in fields_many:
+            param_name_asc = _(param_name)
+            param_name_desc = _('-{}'.format(param_name))
+            param_name_pretty = _(pretty_name(param_name))
+
+            model_names_desc = model_names_desc[0] if model_names_desc else ['-{}'.format(n) for n in model_names_asc]
+
+            self.__param_mapping[param_name_asc] = model_names_asc
+            self.__param_mapping[param_name_desc] = model_names_desc
+
+            self.extra['choices'] += [
+                (param_name_asc, param_name_pretty),
+                (param_name_desc, '{} (descending)'.format(param_name_pretty)),
+            ]
+
+    def filter(self, qs, value):
+        if not value:
+            return super().filter(qs, value)
+
+        for v in value:
+            if v in self.__param_mapping:
+                qs = qs.order_by(*self.__param_mapping[v])
+                value.remove(v)
+
+        return super().filter(qs, value)
