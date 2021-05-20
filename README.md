@@ -26,6 +26,8 @@ class UserFilter(FilterSet):
             ('date_joined', 'date_joined'),
         ),
     )
+    
+    ...
 ```
 
 Examples with auto descening ordering:
@@ -52,6 +54,8 @@ class UserFilter(FilterSet):
             ('date_joined', 'date_joined'),
         ),
     )
+    
+    ...
 ```
 
 Usage:
