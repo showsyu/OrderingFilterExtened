@@ -3,7 +3,7 @@ Extend OrderingFilter from django_filters.\
 Allows to use multiple model fields per parameter.
 
 
-Examples of usage with full control of ordering:
+Examples with full control of ordering:
 
 ```
 from django_filters import FilterSet, CharFilter, DateFromToRangeFilter
@@ -28,7 +28,7 @@ class UserFilter(FilterSet):
     )
 ```
 
-Examples of usage with auto descening ordering:
+Examples with auto descening ordering:
 
 ```
 from django_filters import FilterSet, CharFilter, DateFromToRangeFilter
@@ -54,7 +54,16 @@ class UserFilter(FilterSet):
     )
 ```
 
-Request example:
+Usage:
+
 ```
-api/v2/users/order_by=-full_name
+class UserListAPIView(UsersPermissionQuerysetMixin, generics.ListAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserListSerializer
+    pagination_class = LimitOffsetPagination
+    filterset_class = UserFilter
 ```
+
+Request example: `api/v2/users/order_by=full_name` or `api/v2/users/order_by=-full_name`
+
